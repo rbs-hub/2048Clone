@@ -102,10 +102,12 @@ def main():
     pygame.display.set_caption('2048')
     screen  = pygame.display.set_mode(screen_size)
     
+    # load savegame file if existed
     try:
         with open('savegame', 'rb') as f:
             score, hscore, board = pickle.load(f)
 
+    # create new savegame file if not existed
     except FileNotFoundError:
         score = 0
         hscore = 0
@@ -116,12 +118,11 @@ def main():
     
     message  = 'Press (left, right, up, or down) arrow keys to slide'
     drawScreen(board, score, message)
-    pygame.display.update()
     
-    ''' Main game loop '''
+    # main game loop
     while True:
         direction   = None
-        ''' Event handling loop'''
+        # event handling loop for keyboard and mouse events
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 if score > hscore: hscore = score
@@ -161,12 +162,14 @@ def main():
                         direction = RIGHT
                         message = f'last move: {direction}'
 
+        # if the event handling produce
         if direction:
             board,temp = moveTiles(board, direction)
             getNewNumber(board, False)
             score+=temp
             drawScreen(board, score, message)
-    
+
+        # checking if the game is over
         if gameOver(board):
             game_over = createTextObject('Game over!', default_fontname, 80, default_fgcolor)
             game_over_rect = game_over.get_rect(center = (int(screen_width/2), int(screen_height/2)))
@@ -182,13 +185,6 @@ def createTextObject(text, fontname, fontsize, fgcolor, bgcolor=None, **option):
     img     = font.render(str(text), 2, fgcolor, bgcolor)
 
     return img.convert_alpha()
-
-
-def getCenterPos(x,y):
-    center_x= x_margin + pad_size*(x + 1) + tile_size*x + 50
-    center_y= y_margin + pad_size*(y + 1) + tile_size*y + 50
-    
-    return center_x, center_y
 
 
 def gameOver(board):
