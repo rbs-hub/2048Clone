@@ -8,6 +8,8 @@ The official game: http://git.io/2048
 import pygame, sys, random, pickle
 from pygame.locals import *
 
+pygame.font.init()
+
 
 # Global variables
 fps         = 60
@@ -96,19 +98,27 @@ RIGHT = 'right'
 
 def main():
     global screen, score, hscore
-    pygame.font.init()
-
     pygame.init()
     pygame.display.set_caption('2048')
     screen  = pygame.display.set_mode(screen_size)
     
-    ''' Initializing the game '''
-    message  = 'Press (left, right, up, or down) arrow keys to slide'
-    with open('savegame', 'rb') as f:
-        score, hscore, board = pickle.load(f)
-    drawScreen(board, score, message)
+    try:
+        with open('savegame', 'rb') as f:
+            score, hscore, board = pickle.load(f)
+
+    except FileNotFoundError:
+        score = 0
+        hscore = 0
+        board = [[0 for _ in range(tile_number)] for _ in range(tile_number)]
+        board = getNewNumber(board, True)
+        with open('savegame', 'wb') as f:
+            pickle.dump([score, hscore, board], f)
     
-    ''' Game main loop '''
+    message  = 'Press (left, right, up, or down) arrow keys to slide'
+    drawScreen(board, score, message)
+    pygame.display.update()
+    
+    ''' Main game loop '''
     while True:
         direction   = None
         ''' Event handling loop'''
